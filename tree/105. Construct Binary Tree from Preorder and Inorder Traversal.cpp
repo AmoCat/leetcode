@@ -2,30 +2,24 @@
 class Solution {
 public:
     TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
-        return build(0,preorder.size()-1,preorder,0,inorder.size()-1,inorder);
+        if(!preorder.size()&&inorder.size()) return nullptr;
+        int len=preorder.size();
+        return construct(preorder.begin(),inorder.begin(),len);
     }
 private:
-    static TreeNode* build(int lpre,int rpre,const vector<int>& preorder,
-                           int lin,int rin,const vector<int>& inorder) {
-        if(preorder.size()==0&&inorder.size()==0) return nullptr;
-        int val = preorder[lpre];
-        TreeNode* root = new TreeNode(val);
-        int left_len = find(val,inorder)-lin;//左子树中序序列长度
-        int right_len = rin-find(val,inorder);//右子树中序序列长度
-        if(left_len!=0){
-            root->left = build(lpre+1,lpre+left_len,preorder,lin,lin+left_len-1,inorder);
-        }
-        if(right_len!=0){
-            root->right = build(rpre-right_len+1,rpre,preorder,rin-right_len+1, rin,inorder);
+    TreeNode* construct(vector<int>::iterator preorder,vector<int>::iterator inorder,int len) {
+        if(len<=0) return nullptr;
+        TreeNode* root = new TreeNode(*preorder);
+        if(len == 1) return root;
+        for(int i=0;i<len;++i){
+            if((*(inorder+i))==(*preorder)){
+                int lchild_len = i;
+                int rchild_len = len-i-1;
+                root->left = construct(preorder+1, inorder, lchild_len);
+                root->right = construct(preorder+i+1, inorder+i+1, rchild_len);
+            }
         }
         return root;
-    }
-    static int find(int val,const vector<int>& v){
-        for(int i=0;i<v.size();++i){
-            if(v[i]==val)
-                return i;
-        }
-        return -1;
     }
 };
 //栈
